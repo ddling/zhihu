@@ -34,15 +34,28 @@ class Answer:
 
     def get_votes(self):
 
-        vote = int(self.soup.find_all("span", class_ = "count")[0].string)
+        vote = self.soup.find_all("span", class_ = "count")[0].string
 
         return vote
 
     def get_answer_content(self):
 
-        answer = self.soup.find_all("div", class_ = "zm-editable-content")[0]
+        answer = self.soup.find_all("div", class_ = "zm-editable-content")[2]
 
         return answer
+
+    def get_all_pics(self):
+
+        urls = []
+        count = 0
+        pics = self.soup.find_all("div", class_ = "zm-editable-content")  
+        for pic in pics:
+            pic_urls = pic.find_all("img")
+            for url in pic_urls:
+                if count % 2 == 0:
+                    urls.append(url["src"])
+                count += 1
+        return urls
 
 if __name__ == "__main__":
     answer = Answer("http://www.zhihu.com/question/20357990/answer/38277514")
@@ -51,4 +64,4 @@ if __name__ == "__main__":
     votes = answer.get_votes()
     print votes
     answer_ = answer.get_answer_content()
-    print answer_
+    answer_

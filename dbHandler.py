@@ -26,10 +26,19 @@ class DbHandler:
         url      = answer["url"]
         author   = answer["author"]
         votes    = answer["votes"]
-        contents = answer["contents"]
 
         cur = self.conn.cursor()
-        sql = "INSERT INTO zh_answer VALUES (NULL, %d, '%s', '%s', %d, '%s')" % (zh_qid, url, author, votes, contents)
+        sql = "INSERT INTO zh_answer VALUES (NULL, %d, '%s', '%s', '%s')" % (zh_qid, url, author, votes)
+        print sql
+        cur.execute(sql)
+        self.conn.commit()
+        cur.close()
+
+    def insertNewImgUrl(self, zh_aid, url):
+        
+        cur = self.conn.cursor()
+        sql = "INSERT INTO zh_img_url VALUES (NULL, %d, '%s')" % (zh_aid, url)
+
         cur.execute(sql)
         self.conn.commit()
         cur.close()
@@ -45,7 +54,7 @@ class DbHandler:
 
         return False
 
-    def getAnsIdByUrl(self, url):
+    def getQueIdByUrl(self, url):
 
         cur = self.conn.cursor()
         sql = "SELECT zh_qid FROM zh_question WHERE url = '%s'" % url
@@ -53,11 +62,65 @@ class DbHandler:
         resultSet = cur.fetchone()
         for result in resultSet:
             return result
+
+    def getAnsIdByUrl(self, url):
+
+        cur = self.conn.cursor()
+        sql = "SELECT zh_aid FROM zh_answer WHERE url = '%s'" % url
+        cur.execute(sql)
+        resultSet = cur.fetchone()
+        for result in resultSet:
+            return result
+
+    def getQuestions(self):
+
+        cur = self.conn.cursor()
+        sql = "SELECT * FROM zh_question"
+        cur.execute(sql)
+        resultSet = cur.fetchall()
+        for row in resultSet:
+            question = {}
+            question["zh_qid"] = row[0]
+            question["url"] = row[1]
+            question["title"] = row[2]
+            question["detail"] = row[3]
+            yield question
+
+    def getAnswersByQid(self, zh_qid):
+
+        cur = self.conn.cursor()
+        sql = "SELECT * FROM zh_answer WHERE zh_qid = %d" % (zh_qid)
+        cur.execute(sql)
+        resultSet = cur.fetchall()
+        for row in resultSet:
+            answer = {}
+            answer["zh_aid"] = row[0]
+            answer["zh_qid"] = row[1]
+            answer["url"] = row[2]
+            answer["author"] = row[3]
+            answer["votes"] = row[4]
+            yield answer
+
+    def getImgUrls(self):
+
+        cur = self.conn.cursor()
+        sql = "SELECT * FROM zh_img_url"
+        cur.execute(sql)
+        resultSet = cur.fetchall()
+        for row in resultSet:
+            img = {}
+            img["zh_iid"] = row[0]
+            img["zh_aid"] = row[1]
+            img["url"] = row[2]
+            yield img
     
     def close(self):
         self.conn.close()
 
 if __name__ == "__main__":
     dbHandler = DbHandler()
-    question = {"url": "www.baidu.com", "title": "title", "detail": "detail", "followers": 12, "answerNum": 100}
-    dbHandler.insertNewQuestion(question)
+    for question in dbHandler.getQuestions():
+        print question
+        zh_qid = question["zh_qid"]
+        for answer in dbHandler.getAnswersByQid(zh_qid):
+            print answer

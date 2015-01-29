@@ -3,9 +3,12 @@
 import threading
 import logging
 import time
+import os
+
 from question import Question
 from answer import Answer
 from dbHandler import DbHandler
+from utils import Utils
 
 logging.basicConfig(level = logging.DEBUG,format='(%(threadName)-10s) %(message)s',) 
 
@@ -15,6 +18,13 @@ class DownloadThread(threading.Thread):
         threading.Thread.__init__(self)
         self.url = url
         self.threadingSum = threadingSum
+
+    def storeTheAnswer(self, zh_aid, contents):
+
+        utils = Utils()
+        tmp_answer_content_dir = utils.get("tmp_answer_content_dir")
+        with open(os.getcwd() + "/" + tmp_answer_content_dir + "/%d.txt" % (zh_aid) , 'w') as fb:
+            fb.write(str(contents))
 
     def run(self):
         with self.threadingSum:
@@ -36,16 +46,24 @@ class DownloadThread(threading.Thread):
                                 "answerNum": answerNum, "tags": tags}
                 dbHandler.insertNewQuestion(questionDict)
 
-                zh_qid = dbHandler.getAnsIdByUrl(self.url)
+                zh_qid = dbHandler.getQueIdByUrl(self.url)
                 # 插入新的答案
                 for answer_link in question.get_all_answer_link():
                     answer = Answer(answer_link)
                     author = answer.get_author()
                     votes = answer.get_votes()
                     contents = answer.get_answer_content()
-                    answer = {"url": answer_link, "author": author, "zh_qid": zh_qid, 
-                              "votes": votes, "contents": contents}
-                    dbHandler.insertNewAnswer(answer)
+                    answerDict = {"url": answer_link, "author": author, "zh_qid": zh_qid, 
+                              "votes": votes}
+                    dbHandler.insertNewAnswer(answerDict)
+
+                    # 插入图片地址
+                    zh_aid = dbHandler.getAnsIdByUrl(answer_link)
+
+                    for imgUrl in answer.get_all_pics():
+                        dbHandler.insertNewImgUrl(zh_aid, imgUrl)
+
+                    self.storeTheAnswer(zh_aid, contents)
 
                 dbHandler.close()
 

@@ -76,19 +76,6 @@ class Question:
 
         return answer_links
 
-    def get_all_pics(self):
-
-        urls = []
-        count = 0
-        pics = self.soup.find_all("div", class_ = "zm-editable-content")  
-        for pic in pics:
-            pic_urls = pic.find_all("img")
-            for url in pic_urls:
-                if count % 2 == 0:
-                    urls.append(url["src"])
-                count += 1
-        return urls
-
     def download_all_pics(self, urls):
 
         for url in urls:
