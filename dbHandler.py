@@ -3,7 +3,7 @@ import sqlite3
 class DbHandler:
 
     def __init__(self):
-        self.conn                 = sqlite3.connect("zhihu.db")
+        self.conn                 = sqlite3.connect("sql.db")
         self.conn.isolation_level = None
 
     def insertNewQuestion(self, question = {}):
@@ -19,6 +19,17 @@ class DbHandler:
         cur.execute(sql)
         self.conn.commit()
         cur.close()
+
+    def hasQuestion(self, url):
+        
+        cur = self.conn.cursor()
+        sql = "SELECT * FROM zh_question WHERE url = '%s'" % url
+        cur.execute(sql)
+        resultSet = cur.fetchall()
+        if len(resultSet) > 0:
+            return True
+
+        return False
     
     def close(self):
         self.conn.close()

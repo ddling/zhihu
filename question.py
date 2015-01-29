@@ -17,7 +17,7 @@ class Question:
         if self.isValidQuestionUrl(url):
             self.url = url
         else:
-            raise ValueError("The question url is not valid")
+            raise ValueError("The question url '%s' is not valid" % (url))
             return
         s = Session()
         self.session = s.get_session()
