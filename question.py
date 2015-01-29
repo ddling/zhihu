@@ -66,36 +66,15 @@ class Question:
 
         return tags
 
-    def get_all_authors(self):
-        
-        authors = []
-        for j in range(min(self.get_answer_num(), 50)):
-            author = None
-            if self.soup.find_all("h3", class_ = "zm-item-answer-author-wrap")[j].string == u"匿名用户":
-                author = "匿名用户"
-            else:
-                author = self.soup.find_all("h3", class_ = "zm-item-answer-author-wrap")[j].find_all("a")[1].string
-            authors.append(author)
+    def get_all_answer_link(self):
 
-        return authors
+        answer_links = []
+        for j in range(min(50, self.get_answer_num())):
+            answer_link = "http://www.zhihu.com" + self.soup.find_all("a", class_ = "answer-date-link")[j]["href"]
+            print answer_link
+            answer_links.append(answer_link)
 
-    def get_all_votes(self):
-
-        votes = []
-        for j in range(min(self.get_answer_num(), 50)):
-            vote = self.soup.find_all("span", class_ = "count")[j].string
-            votes.append(vote)
-
-        return votes
-
-    def get_all_answers(self):
-
-        answers = []
-        for j in range(min(self.get_answer_num(), 50)):
-            answer = self.soup.find_all("div", class_ = "zm-editable-content")[j]
-            answers.append(answer)
-
-        return answers
+        return answer_links
 
     def get_all_pics(self):
 
