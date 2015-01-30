@@ -49,10 +49,10 @@ class DownloadThread(threading.Thread):
                 zh_qid = dbHandler.getQueIdByUrl(self.url)
                 # 插入新的答案
                 for answer_link in question.get_all_answer_link():
+
                     answer = Answer(answer_link)
                     author = answer.get_author()
                     votes = answer.get_votes()
-                    contents = answer.get_answer_content()
                     answerDict = {"url": answer_link, "author": author, "zh_qid": zh_qid, 
                               "votes": votes}
                     dbHandler.insertNewAnswer(answerDict)
@@ -63,6 +63,7 @@ class DownloadThread(threading.Thread):
                     for imgUrl in answer.get_all_pics():
                         dbHandler.insertNewImgUrl(zh_aid, imgUrl)
 
+                    contents = answer.get_answer_content()
                     self.storeTheAnswer(zh_aid, contents)
 
                 dbHandler.close()

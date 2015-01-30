@@ -69,7 +69,7 @@ class Question:
     def get_all_answer_link(self):
 
         answer_links = []
-        for j in range(min(50, self.get_answer_num())):
+        for j in range(min(10, self.get_answer_num())):
             answer_link = "http://www.zhihu.com" + self.soup.find_all("a", class_ = "answer-date-link")[j]["href"]
             print answer_link
             answer_links.append(answer_link)

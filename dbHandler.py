@@ -84,6 +84,9 @@ class DbHandler:
             question["url"] = row[1]
             question["title"] = row[2]
             question["detail"] = row[3]
+            question["tags"] = row[4]
+            question["followers"] = row[5]
+            question["answerNum"] = row[6]
             yield question
 
     def getAnswersByQid(self, zh_qid):
